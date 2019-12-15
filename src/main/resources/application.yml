@@ -1,0 +1,23 @@
+server:
+  port: 8090
+
+elasticsearch:
+  host: 127.0.0.1
+  port: 9200
+  userName:
+  password:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
