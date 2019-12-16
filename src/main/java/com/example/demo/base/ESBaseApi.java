@@ -1,9 +1,9 @@
 package com.example.demo.base;
 
 import com.ebaiyihui.framework.page.PageResult;
-import com.example.demo.base.example.SearchExample;
-import com.example.demo.base.example.SearchPageExample;
-import com.example.demo.base.util.ESPage;
+import com.example.demo.base.common.search.Query;
+import com.example.demo.base.common.search.QueryPage;
+import com.example.demo.base.common.search.ESPage;
 
 import java.util.List;
 
@@ -95,7 +95,7 @@ public interface ESBaseApi<T> {
      * @param clazz
      * @return
      */
-    List<T> queryData(SearchExample example, Class<T> clazz);
+    List<T> queryData(Query example, Class<T> clazz);
 
     /**
      * 分页查询数据
@@ -105,7 +105,7 @@ public interface ESBaseApi<T> {
      * @param clazz
      * @return
      */
-    PageResult<T> queryDataPage(ESPage esPage, SearchPageExample example, Class<T> clazz);
+    PageResult<T> queryDataPage(ESPage esPage, QueryPage example, Class<T> clazz);
 
     /**
      * 批量添加

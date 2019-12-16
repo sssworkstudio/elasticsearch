@@ -1,13 +1,12 @@
-package com.example.demo.base.example;
+package com.example.demo.base.common.search;
 
 import org.elasticsearch.index.query.QueryBuilder;
 
 /**
  * @Author: shenshanshan
- * @Date: 08:56 2019-12-10
+ * @Date: 10:08 2019-12-16
  */
-public class SearchExample {
-
+public class QueryPage {
     /**
      * 索引名称，多个索引逗号分隔
      */
@@ -24,21 +23,11 @@ public class SearchExample {
     private String fields;
 
     /**
-     * 记录数
-     */
-    private Integer size;
-
-    /**
-     * 排序字段
-     */
-    private String sortField;
-
-    /**
      * 高亮字段，多个字段逗号分隔
      */
     private String highlightField;
 
-    public SearchExample() {
+    public QueryPage() {
     }
 
     public String getIndex() {
@@ -65,22 +54,6 @@ public class SearchExample {
         this.fields = fields;
     }
 
-    public Integer getSize() {
-        return size;
-    }
-
-    public void setSize(Integer size) {
-        this.size = size;
-    }
-
-    public String getSortField() {
-        return sortField;
-    }
-
-    public void setSortField(String sortField) {
-        this.sortField = sortField;
-    }
-
     public String getHighlightField() {
         return highlightField;
     }
@@ -91,11 +64,10 @@ public class SearchExample {
 
     @Override
     public String toString() {
-        return "SearchExample{" +
+        return "QueryPage{" +
                 "index='" + index + '\'' +
                 ", queryBuilder=" + queryBuilder +
-                ", size=" + size +
-                ", sortField='" + sortField + '\'' +
+                ", fields='" + fields + '\'' +
                 ", highlightField='" + highlightField + '\'' +
                 '}';
     }

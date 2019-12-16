@@ -5,10 +5,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.ebaiyihui.framework.page.PageResult;
 import com.example.demo.base.common.constants.CodeConstants;
 import com.example.demo.base.common.constants.CommonConstants;
-import com.example.demo.base.example.SearchExample;
-import com.example.demo.base.example.SearchPageExample;
+
+import com.example.demo.base.common.search.Query;
+import com.example.demo.base.common.search.QueryPage;
 import com.example.demo.base.util.BeanUtil;
-import com.example.demo.base.util.ESPage;
+import com.example.demo.base.common.search.ESPage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -140,6 +141,7 @@ public class ESBaseServiceImpl<T> implements ESBaseApi<T> {
             request.type(CommonConstants.TYPE);
             try {
                 String json = JSON.toJSONString(t);
+                //判断数据是否存在
                 if (StringUtils.isNotEmpty(getId(t, clazz))) {
                     GetRequest getRequest = new GetRequest(index, CommonConstants.TYPE, getId(t, clazz));
                     GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
@@ -228,7 +230,9 @@ public class ESBaseServiceImpl<T> implements ESBaseApi<T> {
             request.source(searchSourceBuilder);
             try {
                 SearchResponse response = client.search(request, RequestOptions.DEFAULT);
+                //判断响应是否成功
                 if (response.status().getStatus() == CodeConstants.SUCCESS_STATUS_CODE) {
+                    //获取结果集
                     for (SearchHit hit : response.getHits().getHits()) {
                         Map<String, Object> map = hit.getSourceAsMap();
                         map.put(CommonConstants.ID, hit.getId());
@@ -244,7 +248,7 @@ public class ESBaseServiceImpl<T> implements ESBaseApi<T> {
 
 
     @Override
-    public List<T> queryData(SearchExample example, Class<T> clazz) {
+    public List<T> queryData(Query example, Class<T> clazz) {
         if (example != null && StringUtils.isNotEmpty(example.getIndex())) {
             SearchRequest request = new SearchRequest(example.getIndex().split(","));
             request.types(CommonConstants.TYPE);
@@ -268,6 +272,7 @@ public class ESBaseServiceImpl<T> implements ESBaseApi<T> {
                 //高亮显示
                 if (StringUtils.isNotEmpty(example.getHighlightField())) {
                     HighlightBuilder highlightBuilder = new HighlightBuilder();
+                    //高亮显示标签
                     highlightBuilder.preTags("<span style='color:red'>");
                     highlightBuilder.postTags("</span>");
                     //设置高亮字段
@@ -289,6 +294,7 @@ public class ESBaseServiceImpl<T> implements ESBaseApi<T> {
                 log.info("查询结果：{}", response);
 
                 if (response.status().getStatus() == CodeConstants.SUCCESS_STATUS_CODE) {
+                    //高亮结果集处理
                     return setSearchResponse(response, example.getHighlightField(), clazz);
                 }
             } catch (Exception e) {
@@ -300,7 +306,7 @@ public class ESBaseServiceImpl<T> implements ESBaseApi<T> {
 
 
     @Override
-    public PageResult<T> queryDataPage(ESPage esPage, SearchPageExample example, Class<T> clazz) {
+    public PageResult<T> queryDataPage(ESPage esPage, QueryPage example, Class<T> clazz) {
         if (esPage != null && example != null) {
             int total=0;
             PageResult<T> result = new PageResult<>();
@@ -317,9 +323,10 @@ public class ESBaseServiceImpl<T> implements ESBaseApi<T> {
                 if (StringUtils.isNotEmpty(esPage.getOrderBy())) {
 
                     if (esPage.isAsc()) {
-
+                        //升序
                         searchSourceBuilder.sort(SortBuilders.fieldSort(esPage.getOrderBy()).order(SortOrder.ASC));
                     } else {
+                        //降序
                         searchSourceBuilder.sort(SortBuilders.fieldSort(esPage.getOrderBy()).order(SortOrder.DESC));
                     }
                 }
@@ -327,6 +334,7 @@ public class ESBaseServiceImpl<T> implements ESBaseApi<T> {
                 //高亮显示
                 if (StringUtils.isNotEmpty(example.getHighlightField())) {
                     HighlightBuilder highlightBuilder = new HighlightBuilder();
+                    //高亮显示标签
                     highlightBuilder.preTags("<span style='color:red'>");
                     highlightBuilder.postTags("</span>");
                     //设置高亮字段
@@ -353,7 +361,9 @@ public class ESBaseServiceImpl<T> implements ESBaseApi<T> {
                 if (response.status().getStatus() == CodeConstants.SUCCESS_STATUS_CODE) {
                     total=new Long(response.getHits().totalHits).intValue();
                     List<T> sourceList = setSearchResponse(response, example.getHighlightField(),clazz);
+                    //总页数
                     result.setTotalPages((total  +  esPage.getPageSize()  - 1) / esPage.getPageSize());
+                    //总记录数
                     result.setTotal(total);
                     result.setPageNum(esPage.getPageNum());
                     result.setPageSize(esPage.getPageSize());
@@ -423,8 +433,7 @@ public class ESBaseServiceImpl<T> implements ESBaseApi<T> {
                         map.remove(CommonConstants.ID);
                     }
                     indexRequest.source(map, XContentType.JSON);
-                    BulkProcessor bulk = bulkProcessor.add(indexRequest);
-                    System.out.println(bulk);
+                    bulkProcessor.add(indexRequest);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -441,6 +450,9 @@ public class ESBaseServiceImpl<T> implements ESBaseApi<T> {
     }
 
 
+    /**
+     * BulkProcessor初始化
+     */
     @PostConstruct
     public void init() {
         BulkProcessor.Listener listener = new BulkProcessor.Listener() {

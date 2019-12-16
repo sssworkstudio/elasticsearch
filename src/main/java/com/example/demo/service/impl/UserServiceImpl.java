@@ -2,11 +2,12 @@ package com.example.demo.service.impl;
 
 import com.ebaiyihui.framework.page.PageResult;
 import com.ebaiyihui.framework.response.BaseResponse;
-import com.example.demo.base.ESBaseServiceImpl;
+import com.example.demo.base.ESBaseApi;
 import com.example.demo.base.common.constants.CodeConstants;
-import com.example.demo.base.example.SearchExample;
-import com.example.demo.base.example.SearchPageExample;
-import com.example.demo.base.util.ESPage;
+
+import com.example.demo.base.common.search.Query;
+import com.example.demo.base.common.search.QueryPage;
+import com.example.demo.base.common.search.ESPage;
 import com.example.demo.pojo.entity.User;
 import com.example.demo.pojo.vo.UserAddResVO;
 import com.example.demo.pojo.vo.UserEditResVO;
@@ -28,7 +29,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Resource
-    private ESBaseServiceImpl esBaseService;
+    private ESBaseApi esBaseService;
 
 
     @Override
@@ -115,7 +116,7 @@ public class UserServiceImpl implements UserService {
         if (StringUtils.isEmpty(keyword)) {
             return BaseResponse.error("参数缺失");
         }
-        SearchExample example = new SearchExample();
+        Query example = new Query();
         String fields = "address,remark,name";
         example.setIndex("user");
         example.setQueryBuilder(QueryBuilders.multiMatchQuery(keyword, fields.split(",")));
@@ -130,7 +131,7 @@ public class UserServiceImpl implements UserService {
         if (StringUtils.isEmpty(keyword)) {
             return BaseResponse.error("参数缺失");
         }
-        SearchPageExample example = new SearchPageExample();
+        QueryPage example = new QueryPage();
         ESPage esPage=new ESPage(pageNum,pageSize,true,"age");
         String fields = "address,remark,name";
         example.setIndex("user");
